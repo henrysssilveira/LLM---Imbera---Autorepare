@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repare Tools Imbera - Assistente IA</title>
+    <title>RepareTools - Assistente de Autodiagnóstico</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -104,7 +104,6 @@
             opacity: 1;
             pointer-events: all;
         }
-        /* Markdown styling */
         .message-content h1, .message-content h2, .message-content h3 {
             font-weight: 600;
             margin: 12px 0 8px 0;
@@ -163,6 +162,18 @@
             background-color: #f8f9fa;
             border-color: #04395E;
         }
+        .script-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #04395E;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-[#FCFAF7]">
@@ -172,15 +183,15 @@
             <div class="text-center mb-8">
                 <div class="inline-block p-4 bg-gradient-to-br from-[#04395E] to-[#0a5080] rounded-2xl mb-4">
                     <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
                     </svg>
                 </div>
-                <h1 class="text-3xl font-light text-[#04395E] mb-2">Repare Tools Imbera</h1>
-                <p class="text-gray-600 text-sm">Assistente Inteligente de Suporte Técnico</p>
+                <h1 class="text-3xl font-light text-[#04395E] mb-2">RepareTools</h1>
+                <p class="text-gray-600 text-sm">Assistente de Autodiagnóstico de Máquinas Windows</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <h2 class="text-xl font-light mb-6 text-gray-800">Bem-vindo</h2>
+                <h2 class="text-xl font-light mb-6 text-gray-800">Acesso de Colaborador</h2>
                 
                 <form id="loginForm" class="space-y-4">
                     <div>
@@ -194,17 +205,27 @@
                         >
                     </div>
                     
+                    <div>
+                        <label for="hostname" class="block text-sm font-medium text-gray-700 mb-2">Nome da Máquina (opcional)</label>
+                        <input 
+                            type="text" 
+                            id="hostname" 
+                            placeholder="Ex: DESKTOP-ABC123"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition"
+                        >
+                    </div>
+                    
                     <button 
                         type="submit"
                         class="btn-primary w-full text-white py-3 rounded-lg font-medium"
                     >
-                        Acessar Assistente
+                        Iniciar Diagnóstico
                     </button>
                 </form>
                 
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <p class="text-xs text-gray-500 text-center">
-                        💡 Use o assistente para consultas técnicas, documentação e suporte
+                        🔒 Sistema interno Imbera • Diagnóstico automatizado via IA
                     </p>
                 </div>
             </div>
@@ -219,12 +240,12 @@
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-gradient-to-br from-[#04395E] to-[#0a5080] rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-lg font-medium text-[#04395E]">Repare Tools Imbera</h1>
-                        <p class="text-xs text-gray-500" id="userRE"></p>
+                        <h1 class="text-lg font-medium text-[#04395E]">RepareTools</h1>
+                        <p class="text-xs text-gray-500" id="userInfo"></p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -235,7 +256,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Nova Conversa
+                        Novo Diagnóstico
                     </button>
                     <button 
                         onclick="logout()"
@@ -254,32 +275,41 @@
                 <div class="flex gap-3 fade-in">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div class="flex-1">
                         <div class="message-assistant p-4">
                             <div class="message-content text-gray-800">
-                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente Repare Tools</strong>, seu suporte técnico especializado.</p>
-                                <p class="mb-3">Posso ajudá-lo com:</p>
-                                <ul class="space-y-1">
-                                    <li>🔧 Diagnóstico e solução de problemas técnicos</li>
-                                    <li>📚 Consulta de manuais e documentação</li>
-                                    <li>⚙️ Instruções passo a passo para reparos</li>
-                                    <li>💡 Recomendações de manutenção preventiva</li>
-                                </ul>
+                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente RepareTools</strong>, especializado em autodiagnóstico de máquinas Windows.</p>
+                                <p class="mb-3"><strong>Como funciona:</strong></p>
+                                <ol class="space-y-2">
+                                    <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
+                                    <li>2️⃣ Vou gerar um script .bat personalizado para coletar logs do sistema</li>
+                                    <li>3️⃣ Execute o script na sua máquina (será fornecido com instruções)</li>
+                                    <li>4️⃣ Analisarei os logs e fornecerei um guia passo a passo para solução</li>
+                                </ol>
+                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    💡 <strong>Dica:</strong> Seja específico ao descrever o problema (mensagens de erro, comportamento da máquina, quando começou, etc.)
+                                </p>
                             </div>
                         </div>
                         <!-- Quick Actions -->
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="quick-action" onclick="sendQuickMessage('Como diagnosticar problemas de refrigeração?')">
-                                🌡️ Problemas de refrigeração
+                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando frequentemente')">
+                                🐢 Máquina lenta
                             </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Procedimento de manutenção preventiva')">
-                                🔧 Manutenção preventiva
+                            <button class="quick-action" onclick="sendQuickMessage('Recebo erro de tela azul (BSOD) ao ligar')">
+                                🔵 Tela azul (BSOD)
                             </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Consultar manual técnico')">
-                                📖 Manual técnico
+                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não estão abrindo corretamente')">
+                                ⚠️ Erros de aplicativo
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Problemas de conexão de rede')">
+                                🌐 Rede/Internet
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Disco está ficando cheio rapidamente')">
+                                💾 Espaço em disco
                             </button>
                         </div>
                     </div>
@@ -302,22 +332,18 @@
                         <textarea 
                             id="messageInput"
                             rows="1"
-                            placeholder="Envie uma mensagem... (Shift+Enter para nova linha)"
+                            placeholder="Descreva o problema da sua máquina... (Shift+Enter para nova linha)"
                             class="w-full px-4 py-3 border-0 rounded-2xl resize-none text-gray-800 bg-transparent"
                             style="max-height: 200px;"
                         ></textarea>
                         <div class="px-4 pb-3 flex items-center justify-between">
                             <div class="flex gap-2">
-                                <button type="button" class="text-gray-400 hover:text-gray-600 transition" title="Anexar arquivo">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                <span class="text-xs text-gray-500 flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                </button>
-                                <button type="button" class="text-gray-400 hover:text-gray-600 transition" title="Inserir imagem">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </button>
+                                    Seja detalhista para melhor diagnóstico
+                                </span>
                             </div>
                             <span class="token-counter" id="charCounter">0 caracteres</span>
                         </div>
@@ -339,7 +365,9 @@
 
     <script>
         let userRE = '';
+        let userHostname = '';
         let messageHistory = [];
+        const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE'; // Substituir pela URL real do n8n
 
         // Auto-resize textarea
         const textarea = document.getElementById('messageInput');
@@ -347,12 +375,9 @@
             textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-                
-                // Update character counter
                 document.getElementById('charCounter').textContent = `${this.value.length} caracteres`;
             });
 
-            // Handle Shift+Enter for new line, Enter to send
             textarea.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -361,7 +386,7 @@
             });
         }
 
-        // Scroll to bottom detection
+        // Scroll detection
         const messagesContainer = document.getElementById('messagesContainer');
         const scrollButton = document.getElementById('scrollToBottom');
         
@@ -381,13 +406,12 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             userRE = document.getElementById('re').value.trim();
+            userHostname = document.getElementById('hostname').value.trim() || 'Não informado';
             
             if (userRE) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('chatScreen').classList.remove('hidden');
-                document.getElementById('userRE').textContent = `RE: ${userRE} • Conectado`;
-                
-                // Focus no input
+                document.getElementById('userInfo').textContent = `RE: ${userRE} • Máquina: ${userHostname}`;
                 setTimeout(() => textarea.focus(), 100);
             }
         });
@@ -395,23 +419,24 @@
         // Logout
         function logout() {
             if (messageHistory.length > 0) {
-                if (!confirm('Tem certeza que deseja sair? O histórico de conversa será perdido.')) {
+                if (!confirm('Tem certeza que deseja sair? O histórico será perdido.')) {
                     return;
                 }
             }
-            
             userRE = '';
+            userHostname = '';
             messageHistory = [];
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('chatScreen').classList.add('hidden');
             document.getElementById('re').value = '';
+            document.getElementById('hostname').value = '';
             resetChat();
         }
 
         // Clear chat
         function clearChat() {
             if (messageHistory.length > 0) {
-                if (!confirm('Deseja iniciar uma nova conversa? O histórico atual será perdido.')) {
+                if (!confirm('Deseja iniciar um novo diagnóstico? O histórico atual será perdido.')) {
                     return;
                 }
             }
@@ -426,31 +451,40 @@
                 <div class="flex gap-3 fade-in">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div class="flex-1">
                         <div class="message-assistant p-4">
                             <div class="message-content text-gray-800">
-                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente Repare Tools</strong>, seu suporte técnico especializado.</p>
-                                <p class="mb-3">Posso ajudá-lo com:</p>
-                                <ul class="space-y-1">
-                                    <li>🔧 Diagnóstico e solução de problemas técnicos</li>
-                                    <li>📚 Consulta de manuais e documentação</li>
-                                    <li>⚙️ Instruções passo a passo para reparos</li>
-                                    <li>💡 Recomendações de manutenção preventiva</li>
-                                </ul>
+                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente RepareTools</strong>, especializado em autodiagnóstico de máquinas Windows.</p>
+                                <p class="mb-3"><strong>Como funciona:</strong></p>
+                                <ol class="space-y-2">
+                                    <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
+                                    <li>2️⃣ Vou gerar um script .bat personalizado para coletar logs do sistema</li>
+                                    <li>3️⃣ Execute o script na sua máquina (será fornecido com instruções)</li>
+                                    <li>4️⃣ Analisarei os logs e fornecerei um guia passo a passo para solução</li>
+                                </ol>
+                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    💡 <strong>Dica:</strong> Seja específico ao descrever o problema (mensagens de erro, comportamento da máquina, quando começou, etc.)
+                                </p>
                             </div>
                         </div>
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="quick-action" onclick="sendQuickMessage('Como diagnosticar problemas de refrigeração?')">
-                                🌡️ Problemas de refrigeração
+                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando frequentemente')">
+                                🐢 Máquina lenta
                             </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Procedimento de manutenção preventiva')">
-                                🔧 Manutenção preventiva
+                            <button class="quick-action" onclick="sendQuickMessage('Recebo erro de tela azul (BSOD) ao ligar')">
+                                🔵 Tela azul (BSOD)
                             </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Consultar manual técnico')">
-                                📖 Manual técnico
+                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não estão abrindo corretamente')">
+                                ⚠️ Erros de aplicativo
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Problemas de conexão de rede')">
+                                🌐 Rede/Internet
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Disco está ficando cheio rapidamente')">
+                                💾 Espaço em disco
                             </button>
                         </div>
                     </div>
@@ -458,14 +492,13 @@
             `;
         }
 
-        // Quick message buttons
         function sendQuickMessage(message) {
             textarea.value = message;
             document.getElementById('messageForm').dispatchEvent(new Event('submit'));
         }
 
-        // Send message
-        document.getElementById('messageForm').addEventListener('submit', function(e) {
+        // Send message com integração n8n
+        document.getElementById('messageForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -477,23 +510,86 @@
                 input.style.height = 'auto';
                 document.getElementById('charCounter').textContent = '0 caracteres';
                 
-                // Show typing indicator
                 showTypingIndicator();
                 
-                // Simulate assistant response (replace with actual API call)
-                setTimeout(() => {
+                // Enviar para n8n (descomentar quando integrar)
+                try {
+                    const response = await fetch(N8N_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userRE: userRE,
+                            hostname: userHostname,
+                            message: message,
+                            history: messageHistory
+                        })
+                    });
+                    
+                    const data = await response.json();
                     removeTypingIndicator();
-                    const responses = [
-                        'Entendi sua solicitação. Para diagnosticar problemas de refrigeração, vou precisar de algumas informações:\n\n1. **Modelo do equipamento**: Qual é o modelo específico?\n2. **Sintomas**: Descreva o que está acontecendo (não gela, gela demais, ruídos, etc.)\n3. **Tempo de uso**: Há quanto tempo o problema começou?\n\nCom essas informações, posso fornecer um diagnóstico mais preciso.',
-                        'Claro! Vou te ajudar com isso. Baseado na documentação técnica, aqui está o procedimento recomendado:\n\n**Passo 1**: Desligue o equipamento e aguarde 5 minutos\n**Passo 2**: Verifique as conexões elétricas\n**Passo 3**: Inspecione os componentes visuais\n\n⚠️ **Atenção**: Use sempre EPIs adequados durante a manutenção.\n\nPrecisa de mais detalhes sobre algum passo específico?',
-                        'Ótima pergunta! De acordo com o manual técnico atualizado, este procedimento requer atenção especial aos seguintes pontos:\n\n```\n- Temperatura ideal: 2°C a 8°C\n- Pressão do sistema: 150-200 PSI\n- Tempo de ciclo: 15-20 minutos\n```\n\nDeseja que eu explique algum destes parâmetros em mais detalhes?'
-                    ];
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    addMessage(randomResponse, 'assistant');
-                    messageHistory.push({role: 'assistant', content: randomResponse});
-                }, 1500 + Math.random() * 1000);
+                    
+                    // Adicionar resposta do assistente
+                    if (data.response) {
+                        addMessage(data.response, 'assistant', data.hasScript);
+                        messageHistory.push({role: 'assistant', content: data.response});
+                    }
+                } catch (error) {
+                    removeTypingIndicator();
+                    // Fallback para respostas simuladas (MVP)
+                    simulateResponse(message);
+                }
             }
         });
+
+        // Simulação de resposta (remover quando integrar n8n)
+        function simulateResponse(userMessage) {
+            setTimeout(() => {
+                removeTypingIndicator();
+                let response = '';
+                let hasScript = false;
+                
+                if (userMessage.toLowerCase().includes('lenta') || userMessage.toLowerCase().includes('travando')) {
+                    hasScript = true;
+                    response = `Entendi! Máquina lenta e travando. Vou gerar um script de diagnóstico para você.
+
+**📋 Script de Diagnóstico Gerado**
+
+Criei um arquivo \`.bat\` que irá coletar as seguintes informações:
+- Uso de CPU e memória
+- Processos em execução
+- Logs de eventos do sistema
+- Espaço em disco
+- Temperatura dos componentes
+
+**🔧 Como executar:**
+
+1. Baixe o script clicando no botão abaixo
+2. Clique com botão direito no arquivo \`diagnostico.bat\`
+3. Selecione "Executar como administrador"
+4. Aguarde a coleta (leva ~30 segundos)
+5. O script enviará os logs automaticamente
+
+**⚠️ Importante:** Execute como administrador para coletar todos os logs necessários.`;
+                } else {
+                    response = `Entendi o problema: "${userMessage}"
+
+Para fazer um diagnóstico preciso, preciso coletar alguns logs da sua máquina. Vou gerar um script personalizado para isso.
+
+**O que vou analisar:**
+- Logs de erro do Windows
+- Histórico de eventos do sistema
+- Status de drivers e hardware
+- Configurações de rede (se aplicável)
+
+Digite "**gerar script**" para que eu crie o arquivo de diagnóstico personalizado para seu caso.`;
+                }
+                
+                addMessage(response, 'assistant', hasScript);
+                messageHistory.push({role: 'assistant', content: response});
+            }, 1500);
+        }
 
         function showTypingIndicator() {
             const container = messagesContainer.querySelector('.space-y-4');
@@ -503,7 +599,7 @@
             typingDiv.innerHTML = `
                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                 </div>
                 <div class="typing-indicator">
@@ -521,7 +617,7 @@
             if (indicator) indicator.remove();
         }
 
-        function addMessage(text, sender) {
+        function addMessage(text, sender, hasScript = false) {
             const container = messagesContainer.querySelector('.space-y-4');
             const messageDiv = document.createElement('div');
             const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -535,33 +631,43 @@
                         </div>
                         <div class="message-time text-gray-500 px-2">${time}</div>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium">
+                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium text-sm">
                         ${userRE.substring(0, 2).toUpperCase()}
                     </div>
                 `;
             } else {
                 messageDiv.className = 'flex gap-3 fade-in';
                 const parsedContent = marked.parse(text);
+                
+                let scriptButton = '';
+                if (hasScript) {
+                    scriptButton = `
+                        <button class="mt-3 btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2" onclick="downloadScript()">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Baixar Script de Diagnóstico (.bat)
+                        </button>
+                    `;
+                }
+                
                 messageDiv.innerHTML = `
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div class="flex-1">
                         <div class="message-assistant p-4">
                             <div class="message-content text-gray-800">${parsedContent}</div>
+                            ${scriptButton}
                         </div>
                         <div class="flex items-center gap-3 mt-2 px-2">
                             <span class="message-time text-gray-500">${time}</span>
+                            ${hasScript ? '<span class="script-badge"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path></svg>Script Incluído</span>' : ''}
                             <button class="text-gray-400 hover:text-gray-600 transition" title="Copiar resposta" onclick="copyToClipboard(this)">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
-                            <button class="text-gray-400 hover:text-gray-600 transition" title="Útil">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
                                 </svg>
                             </button>
                         </div>
@@ -571,6 +677,65 @@
             
             container.appendChild(messageDiv);
             scrollToBottom();
+        }
+
+        function downloadScript() {
+            // Script .bat de exemplo (será gerado dinamicamente pelo LLM via n8n)
+            const scriptContent = `@echo off
+echo ========================================
+echo RepareTools - Script de Diagnostico
+echo ========================================
+echo.
+echo Coletando informacoes do sistema...
+echo.
+
+:: Criar pasta temporaria
+set "TEMP_DIR=%TEMP%\\reparetools_%RANDOM%"
+mkdir "%TEMP_DIR%"
+
+:: Informacoes do sistema
+systeminfo > "%TEMP_DIR%\\systeminfo.txt"
+
+:: Logs de eventos
+wevtutil qe System /c:50 /rd:true /f:text > "%TEMP_DIR%\\event_system.txt"
+wevtutil qe Application /c:50 /rd:true /f:text > "%TEMP_DIR%\\event_application.txt"
+
+:: Processos em execucao
+tasklist /v > "%TEMP_DIR%\\processes.txt"
+
+:: Uso de disco
+wmic logicaldisk get caption,freespace,size > "%TEMP_DIR%\\disk_space.txt"
+
+:: Drivers
+driverquery /v > "%TEMP_DIR%\\drivers.txt"
+
+:: Compactar logs
+powershell Compress-Archive -Path "%TEMP_DIR%\\*" -DestinationPath "%USERPROFILE%\\Desktop\\diagnostico_logs.zip"
+
+:: Enviar para webhook n8n (substitua pela URL real)
+curl -X POST -F "file=@%USERPROFILE%\\Desktop\\diagnostico_logs.zip" -F "re=${userRE}" -F "hostname=${userHostname}" ${N8N_WEBHOOK_URL}/upload
+
+echo.
+echo ========================================
+echo Coleta concluida!
+echo Arquivo salvo em: %USERPROFILE%\\Desktop\\diagnostico_logs.zip
+echo Logs enviados para analise automatica
+echo ========================================
+pause
+
+:: Limpar pasta temporaria
+rmdir /s /q "%TEMP_DIR%"
+`;
+
+            const blob = new Blob([scriptContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagnostico_${userRE}_${Date.now()}.bat`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
         function scrollToBottom() {
