@@ -259,7 +259,7 @@
                 const response = await fetch(N8N_WEBHOOK_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         re: userRE,
@@ -272,17 +272,18 @@
 
                 const data = await response.json();
                 removeTypingIndicator();
-
-                // Processar resposta do n8n
-                const botResponse = data.response || data.message || 'Erro ao processar solicitação';
+                
+                // Processar resposta do n8n - CORRIGIDO para aceitar "output"
+                const botResponse = data.output || data.response || data.message || "Erro ao processar solicitação";
                 addMessage(botResponse, 'assistant', data.hasScript || false);
-                messageHistory.push({role: 'assistant', content: botResponse});
+                messageHistory.push({ role: 'assistant', content: botResponse });
 
             } catch (error) {
                 removeTypingIndicator();
-                addMessage('❌ Erro ao conectar com o servidor. Verifique sua conexão.', 'assistant');
+                addMessage('Erro ao conectar com o servidor. Verifique sua conexão.', 'assistant');
                 console.error('Erro:', error);
             }
+
         });
 
         function showTypingIndicator() {
