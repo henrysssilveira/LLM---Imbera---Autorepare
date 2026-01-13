@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repare Tools Imbera - Assistente IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .chat-container {
+            height: calc(100vh - 140px);
+            scroll-behavior: smooth;
+        }
+        .message-user {
+            background: linear-gradient(135deg, #04395E 0%, #0a5080 100%);
+            color: white;
+            margin-left: auto;
+            max-width: 80%;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 2px 8px rgba(4, 57, 94, 0.15);
+        }
+        .message-assistant {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            max-width: 85%;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 16px 20px;
+            background-color: #f8f9fa;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid #e9ecef;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .shimmer-border {
+            border: 2px solid transparent;
+            background: 
+                linear-gradient(#FCFAF7 0 0) padding-box,
+                linear-gradient(130deg, #e9ecef 45%, #04395E, #e9ecef 55%) border-box;
+            background-size: 300%;
+            animation: shimmer 6s infinite ease-in-out;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #04395E;
+            box-shadow: 0 0 0 3px rgba(4, 57, 94, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #04395E 0%, #0a5080 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(4, 57, 94, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(4, 57, 94, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+        .scroll-to-bottom {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .scroll-to-bottom.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        /* Markdown styling */
+        .message-content h1, .message-content h2, .message-content h3 {
+            font-weight: 600;
+            margin: 12px 0 8px 0;
+        }
+        .message-content code {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .message-content pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        .message-content ul, .message-content ol {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+        .message-content li {
+            margin: 4px 0;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .token-counter {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+        .quick-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-action:hover {
+            background-color: #f8f9fa;
+            border-color: #04395E;
+        }
+    </style>
+</head>
+<body class="bg-[#FCFAF7]">
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 bg-gradient-to-br from-[#04395E] to-[#0a5080] rounded-2xl mb-4">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-light text-[#04395E] mb-2">Repare Tools Imbera</h1>
+                <p class="text-gray-600 text-sm">Assistente Inteligente de Suporte Técnico</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <h2 class="text-xl font-light mb-6 text-gray-800">Bem-vindo</h2>
+                
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="re" class="block text-sm font-medium text-gray-700 mb-2">Registro de Funcionário (RE)</label>
+                        <input 
+                            type="text" 
+                            id="re" 
+                            required
+                            placeholder="Digite seu RE"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition"
+                        >
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        class="btn-primary w-full text-white py-3 rounded-lg font-medium"
+                    >
+                        Acessar Assistente
+                    </button>
+                </form>
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-xs text-gray-500 text-center">
+                        💡 Use o assistente para consultas técnicas, documentação e suporte
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela do Chat -->
+    <div id="chatScreen" class="hidden flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+            <div class="max-w-5xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-[#04395E] to-[#0a5080] rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-medium text-[#04395E]">Repare Tools Imbera</h1>
+                        <p class="text-xs text-gray-500" id="userRE"></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button 
+                        onclick="clearChat()"
+                        class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center gap-2"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Nova Conversa
+                    </button>
+                    <button 
+                        onclick="logout()"
+                        class="text-sm text-gray-600 hover:text-[#04395E] transition px-4 py-2"
+                    >
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Messages Container -->
+        <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 py-6 chat-container">
+            <div class="max-w-4xl mx-auto space-y-4">
+                <!-- Mensagem de boas-vindas -->
+                <div class="flex gap-3 fade-in">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="message-assistant p-4">
+                            <div class="message-content text-gray-800">
+                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente Repare Tools</strong>, seu suporte técnico especializado.</p>
+                                <p class="mb-3">Posso ajudá-lo com:</p>
+                                <ul class="space-y-1">
+                                    <li>🔧 Diagnóstico e solução de problemas técnicos</li>
+                                    <li>📚 Consulta de manuais e documentação</li>
+                                    <li>⚙️ Instruções passo a passo para reparos</li>
+                                    <li>💡 Recomendações de manutenção preventiva</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Quick Actions -->
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button class="quick-action" onclick="sendQuickMessage('Como diagnosticar problemas de refrigeração?')">
+                                🌡️ Problemas de refrigeração
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Procedimento de manutenção preventiva')">
+                                🔧 Manutenção preventiva
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Consultar manual técnico')">
+                                📖 Manual técnico
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll to Bottom Button -->
+        <button id="scrollToBottom" class="scroll-to-bottom btn-primary w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </button>
+
+        <!-- Input Area -->
+        <div class="border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
+            <div class="max-w-4xl mx-auto">
+                <form id="messageForm" class="flex gap-3 items-end">
+                    <div class="flex-1 shimmer-border rounded-2xl bg-white">
+                        <textarea 
+                            id="messageInput"
+                            rows="1"
+                            placeholder="Envie uma mensagem... (Shift+Enter para nova linha)"
+                            class="w-full px-4 py-3 border-0 rounded-2xl resize-none text-gray-800 bg-transparent"
+                            style="max-height: 200px;"
+                        ></textarea>
+                        <div class="px-4 pb-3 flex items-center justify-between">
+                            <div class="flex gap-2">
+                                <button type="button" class="text-gray-400 hover:text-gray-600 transition" title="Anexar arquivo">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="text-gray-400 hover:text-gray-600 transition" title="Inserir imagem">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="token-counter" id="charCounter">0 caracteres</span>
+                        </div>
+                    </div>
+                    <button 
+                        type="submit"
+                        id="sendButton"
+                        class="btn-primary w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                        title="Enviar mensagem (Enter)"
+                    >
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userRE = '';
+        let messageHistory = [];
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('messageInput');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+                
+                // Update character counter
+                document.getElementById('charCounter').textContent = `${this.value.length} caracteres`;
+            });
+
+            // Handle Shift+Enter for new line, Enter to send
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+
+        // Scroll to bottom detection
+        const messagesContainer = document.getElementById('messagesContainer');
+        const scrollButton = document.getElementById('scrollToBottom');
+        
+        messagesContainer.addEventListener('scroll', function() {
+            const isNearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 100;
+            scrollButton.classList.toggle('show', !isNearBottom);
+        });
+
+        scrollButton.addEventListener('click', function() {
+            messagesContainer.scrollTo({
+                top: messagesContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            userRE = document.getElementById('re').value.trim();
+            
+            if (userRE) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('chatScreen').classList.remove('hidden');
+                document.getElementById('userRE').textContent = `RE: ${userRE} • Conectado`;
+                
+                // Focus no input
+                setTimeout(() => textarea.focus(), 100);
+            }
+        });
+
+        // Logout
+        function logout() {
+            if (messageHistory.length > 0) {
+                if (!confirm('Tem certeza que deseja sair? O histórico de conversa será perdido.')) {
+                    return;
+                }
+            }
+            
+            userRE = '';
+            messageHistory = [];
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('chatScreen').classList.add('hidden');
+            document.getElementById('re').value = '';
+            resetChat();
+        }
+
+        // Clear chat
+        function clearChat() {
+            if (messageHistory.length > 0) {
+                if (!confirm('Deseja iniciar uma nova conversa? O histórico atual será perdido.')) {
+                    return;
+                }
+            }
+            messageHistory = [];
+            resetChat();
+            textarea.focus();
+        }
+
+        function resetChat() {
+            const container = messagesContainer.querySelector('.space-y-4');
+            container.innerHTML = `
+                <div class="flex gap-3 fade-in">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="message-assistant p-4">
+                            <div class="message-content text-gray-800">
+                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente Repare Tools</strong>, seu suporte técnico especializado.</p>
+                                <p class="mb-3">Posso ajudá-lo com:</p>
+                                <ul class="space-y-1">
+                                    <li>🔧 Diagnóstico e solução de problemas técnicos</li>
+                                    <li>📚 Consulta de manuais e documentação</li>
+                                    <li>⚙️ Instruções passo a passo para reparos</li>
+                                    <li>💡 Recomendações de manutenção preventiva</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button class="quick-action" onclick="sendQuickMessage('Como diagnosticar problemas de refrigeração?')">
+                                🌡️ Problemas de refrigeração
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Procedimento de manutenção preventiva')">
+                                🔧 Manutenção preventiva
+                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Consultar manual técnico')">
+                                📖 Manual técnico
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Quick message buttons
+        function sendQuickMessage(message) {
+            textarea.value = message;
+            document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+        }
+
+        // Send message
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                messageHistory.push({role: 'user', content: message});
+                input.value = '';
+                input.style.height = 'auto';
+                document.getElementById('charCounter').textContent = '0 caracteres';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate assistant response (replace with actual API call)
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const responses = [
+                        'Entendi sua solicitação. Para diagnosticar problemas de refrigeração, vou precisar de algumas informações:\n\n1. **Modelo do equipamento**: Qual é o modelo específico?\n2. **Sintomas**: Descreva o que está acontecendo (não gela, gela demais, ruídos, etc.)\n3. **Tempo de uso**: Há quanto tempo o problema começou?\n\nCom essas informações, posso fornecer um diagnóstico mais preciso.',
+                        'Claro! Vou te ajudar com isso. Baseado na documentação técnica, aqui está o procedimento recomendado:\n\n**Passo 1**: Desligue o equipamento e aguarde 5 minutos\n**Passo 2**: Verifique as conexões elétricas\n**Passo 3**: Inspecione os componentes visuais\n\n⚠️ **Atenção**: Use sempre EPIs adequados durante a manutenção.\n\nPrecisa de mais detalhes sobre algum passo específico?',
+                        'Ótima pergunta! De acordo com o manual técnico atualizado, este procedimento requer atenção especial aos seguintes pontos:\n\n```\n- Temperatura ideal: 2°C a 8°C\n- Pressão do sistema: 150-200 PSI\n- Tempo de ciclo: 15-20 minutos\n```\n\nDeseja que eu explique algum destes parâmetros em mais detalhes?'
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'assistant');
+                    messageHistory.push({role: 'assistant', content: randomResponse});
+                }, 1500 + Math.random() * 1000);
+            }
+        });
+
+        function showTypingIndicator() {
+            const container = messagesContainer.querySelector('.space-y-4');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'flex gap-3 fade-in';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function addMessage(text, sender) {
+            const container = messagesContainer.querySelector('.space-y-4');
+            const messageDiv = document.createElement('div');
+            const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            if (sender === 'user') {
+                messageDiv.className = 'flex gap-3 justify-end fade-in';
+                messageDiv.innerHTML = `
+                    <div class="flex-1 flex flex-col items-end">
+                        <div class="message-user p-4">
+                            <p class="text-white whitespace-pre-wrap">${escapeHtml(text)}</p>
+                        </div>
+                        <div class="message-time text-gray-500 px-2">${time}</div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium">
+                        ${userRE.substring(0, 2).toUpperCase()}
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'flex gap-3 fade-in';
+                const parsedContent = marked.parse(text);
+                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="message-assistant p-4">
+                            <div class="message-content text-gray-800">${parsedContent}</div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2 px-2">
+                            <span class="message-time text-gray-500">${time}</span>
+                            <button class="text-gray-400 hover:text-gray-600 transition" title="Copiar resposta" onclick="copyToClipboard(this)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                            <button class="text-gray-400 hover:text-gray-600 transition" title="Útil">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                messagesContainer.scrollTo({
+                    top: messagesContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function copyToClipboard(button) {
+            const messageContent = button.closest('.flex-1').querySelector('.message-content').innerText;
+            navigator.clipboard.writeText(messageContent).then(() => {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
