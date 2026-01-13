@@ -7,173 +7,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-        .chat-container {
-            height: calc(100vh - 140px);
-            scroll-behavior: smooth;
-        }
-        .message-user {
-            background: linear-gradient(135deg, #04395E 0%, #0a5080 100%);
-            color: white;
-            margin-left: auto;
-            max-width: 80%;
-            border-radius: 18px 18px 4px 18px;
-            box-shadow: 0 2px 8px rgba(4, 57, 94, 0.15);
-        }
-        .message-assistant {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            max-width: 85%;
-            border-radius: 18px 18px 18px 4px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-        }
-        .typing-indicator {
-            display: inline-flex;
-            gap: 4px;
-            padding: 16px 20px;
-            background-color: #f8f9fa;
-            border-radius: 18px 18px 18px 4px;
-            border: 1px solid #e9ecef;
-        }
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #6c757d;
-            animation: typing 1.4s infinite;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .chat-container { height: calc(100vh - 140px); scroll-behavior: smooth; }
+        .message-user { background: linear-gradient(135deg, #04395E 0%, #0a5080 100%); color: white; margin-left: auto; max-width: 80%; border-radius: 18px 18px 4px 18px; box-shadow: 0 2px 8px rgba(4, 57, 94, 0.15); }
+        .message-assistant { background-color: #f8f9fa; border: 1px solid #e9ecef; max-width: 85%; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); }
+        .typing-indicator { display: inline-flex; gap: 4px; padding: 16px 20px; background-color: #f8f9fa; border-radius: 18px 18px 18px 4px; border: 1px solid #e9ecef; }
+        .typing-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #6c757d; animation: typing 1.4s infinite; }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
-            30% { transform: translateY(-10px); opacity: 1; }
-        }
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        .shimmer-border {
-            border: 2px solid transparent;
-            background: 
-                linear-gradient(#FCFAF7 0 0) padding-box,
-                linear-gradient(130deg, #e9ecef 45%, #04395E, #e9ecef 55%) border-box;
-            background-size: 300%;
-            animation: shimmer 6s infinite ease-in-out;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #04395E;
-            box-shadow: 0 0 0 3px rgba(4, 57, 94, 0.1);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #04395E 0%, #0a5080 100%);
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(4, 57, 94, 0.2);
-        }
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(4, 57, 94, 0.3);
-        }
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        .btn-secondary {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            transition: all 0.2s;
-        }
-        .btn-secondary:hover {
-            background-color: #e9ecef;
-        }
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-top: 4px;
-        }
-        .scroll-to-bottom {
-            position: fixed;
-            bottom: 120px;
-            right: 30px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .scroll-to-bottom.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .message-content h1, .message-content h2, .message-content h3 {
-            font-weight: 600;
-            margin: 12px 0 8px 0;
-        }
-        .message-content code {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-        .message-content pre {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            padding: 12px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 8px 0;
-        }
-        .message-content pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-        }
-        .message-content ul, .message-content ol {
-            margin: 8px 0;
-            padding-left: 24px;
-        }
-        .message-content li {
-            margin: 4px 0;
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .token-counter {
-            font-size: 0.7rem;
-            color: #6c757d;
-        }
-        .quick-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .quick-action:hover {
-            background-color: #f8f9fa;
-            border-color: #04395E;
-        }
-        .script-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            background-color: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            color: #04395E;
-            font-weight: 500;
-        }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.7; } 30% { transform: translateY(-10px); opacity: 1; } }
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        .shimmer-border { border: 2px solid transparent; background: linear-gradient(#FCFAF7 0 0) padding-box, linear-gradient(130deg, #e9ecef 45%, #04395E, #e9ecef 55%) border-box; background-size: 300%; animation: shimmer 6s infinite ease-in-out; }
+        input:focus, textarea:focus { outline: none; border-color: #04395E; box-shadow: 0 0 0 3px rgba(4, 57, 94, 0.1); }
+        .btn-primary { background: linear-gradient(135deg, #04395E 0%, #0a5080 100%); transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(4, 57, 94, 0.2); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(4, 57, 94, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background-color: #f8f9fa; border: 1px solid #dee2e6; transition: all 0.2s; }
+        .btn-secondary:hover { background-color: #e9ecef; }
+        .message-time { font-size: 0.7rem; opacity: 0.6; margin-top: 4px; }
+        .scroll-to-bottom { position: fixed; bottom: 120px; right: 30px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .scroll-to-bottom.show { opacity: 1; pointer-events: all; }
+        .message-content h1, .message-content h2, .message-content h3 { font-weight: 600; margin: 12px 0 8px 0; }
+        .message-content code { background-color: rgba(0, 0, 0, 0.05); padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        .message-content pre { background-color: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; }
+        .message-content pre code { background: none; padding: 0; color: inherit; }
+        .message-content ul, .message-content ol { margin: 8px 0; padding-left: 24px; }
+        .message-content li { margin: 4px 0; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .token-counter { font-size: 0.7rem; color: #6c757d; }
+        .quick-action { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #dee2e6; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .quick-action:hover { background-color: #f8f9fa; border-color: #04395E; }
+        .script-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background-color: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 12px; font-size: 0.75rem; color: #04395E; font-weight: 500; }
     </style>
 </head>
 <body class="bg-[#FCFAF7]">
@@ -189,44 +54,24 @@
                 <h1 class="text-3xl font-light text-[#04395E] mb-2">RepareTools</h1>
                 <p class="text-gray-600 text-sm">Assistente de Autodiagnóstico de Máquinas Windows</p>
             </div>
-            
+
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <h2 class="text-xl font-light mb-6 text-gray-800">Acesso de Colaborador</h2>
-                
+
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label for="re" class="block text-sm font-medium text-gray-700 mb-2">Registro de Funcionário (RE)</label>
-                        <input 
-                            type="text" 
-                            id="re" 
-                            required
-                            placeholder="Digite seu RE"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition"
-                        >
+                        <input type="text" id="re" required placeholder="Digite seu RE" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition">
                     </div>
-                    
                     <div>
                         <label for="hostname" class="block text-sm font-medium text-gray-700 mb-2">Nome da Máquina (opcional)</label>
-                        <input 
-                            type="text" 
-                            id="hostname" 
-                            placeholder="Ex: DESKTOP-ABC123"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition"
-                        >
+                        <input type="text" id="hostname" placeholder="Ex: DESKTOP-ABC123" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 transition">
                     </div>
-                    
-                    <button 
-                        type="submit"
-                        class="btn-primary w-full text-white py-3 rounded-lg font-medium"
-                    >
-                        Iniciar Diagnóstico
-                    </button>
+                    <button type="submit" class="btn-primary w-full text-white py-3 rounded-lg font-medium">Iniciar Diagnóstico</button>
                 </form>
-                
+
                 <div class="mt-6 pt-6 border-t border-gray-200">
-                    <p class="text-xs text-gray-500 text-center">
-                        🔒 Sistema interno Imbera • Diagnóstico automatizado via IA
-                    </p>
+                    <p class="text-xs text-gray-500 text-center">🔒 Sistema interno Imbera • Diagnóstico automatizado via IA</p>
                 </div>
             </div>
         </div>
@@ -234,7 +79,6 @@
 
     <!-- Tela do Chat -->
     <div id="chatScreen" class="hidden flex flex-col h-screen">
-        <!-- Header -->
         <header class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
             <div class="max-w-5xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -249,111 +93,43 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button 
-                        onclick="clearChat()"
-                        class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center gap-2"
-                    >
+                    <button onclick="clearChat()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
                         Novo Diagnóstico
                     </button>
-                    <button 
-                        onclick="logout()"
-                        class="text-sm text-gray-600 hover:text-[#04395E] transition px-4 py-2"
-                    >
-                        Sair
-                    </button>
+                    <button onclick="logout()" class="text-sm text-gray-600 hover:text-[#04395E] transition px-4 py-2">Sair</button>
                 </div>
             </div>
         </header>
 
-        <!-- Messages Container -->
         <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 py-6 chat-container">
-            <div class="max-w-4xl mx-auto space-y-4">
-                <!-- Mensagem de boas-vindas -->
-                <div class="flex gap-3 fade-in">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <div class="message-assistant p-4">
-                            <div class="message-content text-gray-800">
-                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente RepareTools</strong>, especializado em autodiagnóstico de máquinas Windows.</p>
-                                <p class="mb-3"><strong>Como funciona:</strong></p>
-                                <ol class="space-y-2">
-                                    <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
-                                    <li>2️⃣ Vou gerar um script .bat personalizado para coletar logs do sistema</li>
-                                    <li>3️⃣ Execute o script na sua máquina (será fornecido com instruções)</li>
-                                    <li>4️⃣ Analisarei os logs e fornecerei um guia passo a passo para solução</li>
-                                </ol>
-                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    💡 <strong>Dica:</strong> Seja específico ao descrever o problema (mensagens de erro, comportamento da máquina, quando começou, etc.)
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Quick Actions -->
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando frequentemente')">
-                                🐢 Máquina lenta
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Recebo erro de tela azul (BSOD) ao ligar')">
-                                🔵 Tela azul (BSOD)
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não estão abrindo corretamente')">
-                                ⚠️ Erros de aplicativo
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Problemas de conexão de rede')">
-                                🌐 Rede/Internet
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Disco está ficando cheio rapidamente')">
-                                💾 Espaço em disco
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="max-w-4xl mx-auto space-y-4" id="messagesContent"></div>
         </div>
 
-        <!-- Scroll to Bottom Button -->
         <button id="scrollToBottom" class="scroll-to-bottom btn-primary w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
         </button>
 
-        <!-- Input Area -->
         <div class="border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
             <div class="max-w-4xl mx-auto">
                 <form id="messageForm" class="flex gap-3 items-end">
                     <div class="flex-1 shimmer-border rounded-2xl bg-white">
-                        <textarea 
-                            id="messageInput"
-                            rows="1"
-                            placeholder="Descreva o problema da sua máquina... (Shift+Enter para nova linha)"
-                            class="w-full px-4 py-3 border-0 rounded-2xl resize-none text-gray-800 bg-transparent"
-                            style="max-height: 200px;"
-                        ></textarea>
+                        <textarea id="messageInput" rows="1" placeholder="Descreva o problema da sua máquina... (Shift+Enter para nova linha)" class="w-full px-4 py-3 border-0 rounded-2xl resize-none text-gray-800 bg-transparent" style="max-height: 200px;"></textarea>
                         <div class="px-4 pb-3 flex items-center justify-between">
-                            <div class="flex gap-2">
-                                <span class="text-xs text-gray-500 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    Seja detalhista para melhor diagnóstico
-                                </span>
-                            </div>
+                            <span class="text-xs text-gray-500 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Seja detalhista para melhor diagnóstico
+                            </span>
                             <span class="token-counter" id="charCounter">0 caracteres</span>
                         </div>
                     </div>
-                    <button 
-                        type="submit"
-                        id="sendButton"
-                        class="btn-primary w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                        title="Enviar mensagem (Enter)"
-                    >
+                    <button type="submit" id="sendButton" class="btn-primary w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" title="Enviar mensagem (Enter)">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
@@ -367,17 +143,18 @@
         let userRE = '';
         let userHostname = '';
         let messageHistory = [];
-        const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE'; // Substituir pela URL real do n8n
+        const N8N_WEBHOOK_URL = 'https://flows.imberabrasil.com/webhook/recebre-dados';
 
-        // Auto-resize textarea
         const textarea = document.getElementById('messageInput');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const scrollButton = document.getElementById('scrollToBottom');
+
         if (textarea) {
             textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 200) + 'px';
                 document.getElementById('charCounter').textContent = `${this.value.length} caracteres`;
             });
-
             textarea.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -386,43 +163,30 @@
             });
         }
 
-        // Scroll detection
-        const messagesContainer = document.getElementById('messagesContainer');
-        const scrollButton = document.getElementById('scrollToBottom');
-        
         messagesContainer.addEventListener('scroll', function() {
             const isNearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 100;
             scrollButton.classList.toggle('show', !isNearBottom);
         });
 
         scrollButton.addEventListener('click', function() {
-            messagesContainer.scrollTo({
-                top: messagesContainer.scrollHeight,
-                behavior: 'smooth'
-            });
+            messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
         });
 
-        // Login
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             userRE = document.getElementById('re').value.trim();
             userHostname = document.getElementById('hostname').value.trim() || 'Não informado';
-            
             if (userRE) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('chatScreen').classList.remove('hidden');
                 document.getElementById('userInfo').textContent = `RE: ${userRE} • Máquina: ${userHostname}`;
+                resetChat();
                 setTimeout(() => textarea.focus(), 100);
             }
         });
 
-        // Logout
         function logout() {
-            if (messageHistory.length > 0) {
-                if (!confirm('Tem certeza que deseja sair? O histórico será perdido.')) {
-                    return;
-                }
-            }
+            if (messageHistory.length > 0 && !confirm('Tem certeza que deseja sair? O histórico será perdido.')) return;
             userRE = '';
             userHostname = '';
             messageHistory = [];
@@ -430,24 +194,17 @@
             document.getElementById('chatScreen').classList.add('hidden');
             document.getElementById('re').value = '';
             document.getElementById('hostname').value = '';
-            resetChat();
         }
 
-        // Clear chat
         function clearChat() {
-            if (messageHistory.length > 0) {
-                if (!confirm('Deseja iniciar um novo diagnóstico? O histórico atual será perdido.')) {
-                    return;
-                }
-            }
+            if (messageHistory.length > 0 && !confirm('Deseja iniciar um novo diagnóstico?')) return;
             messageHistory = [];
             resetChat();
             textarea.focus();
         }
 
         function resetChat() {
-            const container = messagesContainer.querySelector('.space-y-4');
-            container.innerHTML = `
+            document.getElementById('messagesContent').innerHTML = `
                 <div class="flex gap-3 fade-in">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,30 +219,17 @@
                                 <ol class="space-y-2">
                                     <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
                                     <li>2️⃣ Vou gerar um script .bat personalizado para coletar logs do sistema</li>
-                                    <li>3️⃣ Execute o script na sua máquina (será fornecido com instruções)</li>
+                                    <li>3️⃣ Execute o script com <strong>duplo clique</strong> (não precisa ser administrador)</li>
                                     <li>4️⃣ Analisarei os logs e fornecerei um guia passo a passo para solução</li>
                                 </ol>
-                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    💡 <strong>Dica:</strong> Seja específico ao descrever o problema (mensagens de erro, comportamento da máquina, quando começou, etc.)
-                                </p>
+                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">💡 <strong>Dica:</strong> Seja específico ao descrever o problema</p>
                             </div>
                         </div>
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando frequentemente')">
-                                🐢 Máquina lenta
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Recebo erro de tela azul (BSOD) ao ligar')">
-                                🔵 Tela azul (BSOD)
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não estão abrindo corretamente')">
-                                ⚠️ Erros de aplicativo
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Problemas de conexão de rede')">
-                                🌐 Rede/Internet
-                            </button>
-                            <button class="quick-action" onclick="sendQuickMessage('Disco está ficando cheio rapidamente')">
-                                💾 Espaço em disco
-                            </button>
+                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando')">🐢 Máquina lenta</button>
+                            <button class="quick-action" onclick="sendQuickMessage('Erro de tela azul (BSOD)')">🔵 Tela azul</button>
+                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não abrem')">⚠️ Erros de aplicativo</button>
+                            <button class="quick-action" onclick="sendQuickMessage('Problemas de rede')">🌐 Rede</button>
                         </div>
                     </div>
                 </div>
@@ -497,118 +241,65 @@
             document.getElementById('messageForm').dispatchEvent(new Event('submit'));
         }
 
-        // Send message com integração n8n
         document.getElementById('messageForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                addMessage(message, 'user');
-                messageHistory.push({role: 'user', content: message});
-                input.value = '';
-                input.style.height = 'auto';
-                document.getElementById('charCounter').textContent = '0 caracteres';
-                
-                showTypingIndicator();
-                
-                // Enviar para n8n (descomentar quando integrar)
-                try {
-                    const response = await fetch(N8N_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userRE: userRE,
-                            hostname: userHostname,
-                            message: message,
-                            history: messageHistory
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    removeTypingIndicator();
-                    
-                    // Adicionar resposta do assistente
-                    if (data.response) {
-                        addMessage(data.response, 'assistant', data.hasScript);
-                        messageHistory.push({role: 'assistant', content: data.response});
-                    }
-                } catch (error) {
-                    removeTypingIndicator();
-                    // Fallback para respostas simuladas (MVP)
-                    simulateResponse(message);
-                }
+            const message = textarea.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            messageHistory.push({role: 'user', content: message});
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            document.getElementById('charCounter').textContent = '0 caracteres';
+
+            showTypingIndicator();
+
+            try {
+                // ENVIAR DADOS PARA O WEBHOOK N8N
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        re: userRE,
+                        hostname: userHostname,
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        history: messageHistory
+                    })
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                // Processar resposta do n8n
+                const botResponse = data.response || data.message || 'Erro ao processar solicitação';
+                addMessage(botResponse, 'assistant', data.hasScript || false);
+                messageHistory.push({role: 'assistant', content: botResponse});
+
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('❌ Erro ao conectar com o servidor. Verifique sua conexão.', 'assistant');
+                console.error('Erro:', error);
             }
         });
 
-        // Simulação de resposta (remover quando integrar n8n)
-        function simulateResponse(userMessage) {
-            setTimeout(() => {
-                removeTypingIndicator();
-                let response = '';
-                let hasScript = false;
-                
-                if (userMessage.toLowerCase().includes('lenta') || userMessage.toLowerCase().includes('travando')) {
-                    hasScript = true;
-                    response = `Entendi! Máquina lenta e travando. Vou gerar um script de diagnóstico para você.
-
-**📋 Script de Diagnóstico Gerado**
-
-Criei um arquivo \`.bat\` que irá coletar as seguintes informações:
-- Uso de CPU e memória
-- Processos em execução
-- Logs de eventos do sistema
-- Espaço em disco
-- Temperatura dos componentes
-
-**🔧 Como executar:**
-
-1. Baixe o script clicando no botão abaixo
-2. Clique com botão direito no arquivo \`diagnostico.bat\`
-3. Selecione "Executar como administrador"
-4. Aguarde a coleta (leva ~30 segundos)
-5. O script enviará os logs automaticamente
-
-**⚠️ Importante:** Execute como administrador para coletar todos os logs necessários.`;
-                } else {
-                    response = `Entendi o problema: "${userMessage}"
-
-Para fazer um diagnóstico preciso, preciso coletar alguns logs da sua máquina. Vou gerar um script personalizado para isso.
-
-**O que vou analisar:**
-- Logs de erro do Windows
-- Histórico de eventos do sistema
-- Status de drivers e hardware
-- Configurações de rede (se aplicável)
-
-Digite "**gerar script**" para que eu crie o arquivo de diagnóstico personalizado para seu caso.`;
-                }
-                
-                addMessage(response, 'assistant', hasScript);
-                messageHistory.push({role: 'assistant', content: response});
-            }, 1500);
-        }
-
         function showTypingIndicator() {
-            const container = messagesContainer.querySelector('.space-y-4');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'flex gap-3 fade-in';
-            typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <div class="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+            document.getElementById('messagesContent').innerHTML += `
+                <div id="typingIndicator" class="flex gap-3 fade-in">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
                 </div>
             `;
-            container.appendChild(typingDiv);
             scrollToBottom();
         }
 
@@ -618,40 +309,16 @@ Digite "**gerar script**" para que eu crie o arquivo de diagnóstico personaliza
         }
 
         function addMessage(text, sender, hasScript = false) {
-            const container = messagesContainer.querySelector('.space-y-4');
-            const messageDiv = document.createElement('div');
             const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
-            if (sender === 'user') {
-                messageDiv.className = 'flex gap-3 justify-end fade-in';
-                messageDiv.innerHTML = `
+            const content = sender === 'user' 
+                ? `<div class="flex gap-3 justify-end fade-in">
                     <div class="flex-1 flex flex-col items-end">
-                        <div class="message-user p-4">
-                            <p class="text-white whitespace-pre-wrap">${escapeHtml(text)}</p>
-                        </div>
+                        <div class="message-user p-4"><p class="text-white whitespace-pre-wrap">${escapeHtml(text)}</p></div>
                         <div class="message-time text-gray-500 px-2">${time}</div>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium text-sm">
-                        ${userRE.substring(0, 2).toUpperCase()}
-                    </div>
-                `;
-            } else {
-                messageDiv.className = 'flex gap-3 fade-in';
-                const parsedContent = marked.parse(text);
-                
-                let scriptButton = '';
-                if (hasScript) {
-                    scriptButton = `
-                        <button class="mt-3 btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2" onclick="downloadScript()">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Baixar Script de Diagnóstico (.bat)
-                        </button>
-                    `;
-                }
-                
-                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium text-sm">${userRE.substring(0, 2).toUpperCase()}</div>
+                </div>`
+                : `<div class="flex gap-3 fade-in">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -659,72 +326,70 @@ Digite "**gerar script**" para que eu crie o arquivo de diagnóstico personaliza
                     </div>
                     <div class="flex-1">
                         <div class="message-assistant p-4">
-                            <div class="message-content text-gray-800">${parsedContent}</div>
-                            ${scriptButton}
+                            <div class="message-content text-gray-800">${marked.parse(text)}</div>
+                            ${hasScript ? '<button class="mt-3 btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2" onclick="downloadScript()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Baixar Script (.bat)</button>' : ''}
                         </div>
                         <div class="flex items-center gap-3 mt-2 px-2">
                             <span class="message-time text-gray-500">${time}</span>
-                            ${hasScript ? '<span class="script-badge"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path></svg>Script Incluído</span>' : ''}
-                            <button class="text-gray-400 hover:text-gray-600 transition" title="Copiar resposta" onclick="copyToClipboard(this)">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
+                            ${hasScript ? '<span class="script-badge">✅ Sem necessidade de admin</span>' : ''}
                         </div>
                     </div>
-                `;
-            }
-            
-            container.appendChild(messageDiv);
+                </div>`;
+
+            document.getElementById('messagesContent').innerHTML += content;
             scrollToBottom();
         }
 
         function downloadScript() {
-            // Script .bat de exemplo (será gerado dinamicamente pelo LLM via n8n)
             const scriptContent = `@echo off
+chcp 65001 >nul
 echo ========================================
-echo RepareTools - Script de Diagnostico
+echo RepareTools - Diagnostico (SEM ADMIN)
 echo ========================================
 echo.
-echo Coletando informacoes do sistema...
+
+set "TEMP_DIR=%USERPROFILE%\\AppData\\Local\\Temp\\reparetools_%RANDOM%"
+mkdir "%TEMP_DIR%" 2>nul
+
+echo RE: ${userRE} > "%TEMP_DIR%\\info.txt"
+echo Maquina: %COMPUTERNAME% >> "%TEMP_DIR%\\info.txt"
+
+echo [1/8] Coletando sistema...
+systeminfo > "%TEMP_DIR%\\systeminfo.txt" 2>&1
+
+echo [2/8] Processos...
+tasklist /v > "%TEMP_DIR%\\processes.txt" 2>&1
+
+echo [3/8] CPU e memoria...
+wmic cpu get name,numberofcores /format:list > "%TEMP_DIR%\\cpu.txt" 2>&1
+
+echo [4/8] Espaco em disco...
+wmic logicaldisk get caption,freespace,size /format:list > "%TEMP_DIR%\\disk.txt" 2>&1
+
+echo [5/8] Programas instalados...
+wmic product get name,version /format:list > "%TEMP_DIR%\\programs.txt" 2>&1
+
+echo [6/8] Configuracoes de rede...
+ipconfig /all > "%TEMP_DIR%\\network.txt" 2>&1
+
+echo [7/8] Conexoes ativas...
+netstat -ano > "%TEMP_DIR%\\connections.txt" 2>&1
+
+echo [8/8] Variaveis de ambiente...
+set > "%TEMP_DIR%\\env.txt" 2>&1
+
 echo.
-
-:: Criar pasta temporaria
-set "TEMP_DIR=%TEMP%\\reparetools_%RANDOM%"
-mkdir "%TEMP_DIR%"
-
-:: Informacoes do sistema
-systeminfo > "%TEMP_DIR%\\systeminfo.txt"
-
-:: Logs de eventos
-wevtutil qe System /c:50 /rd:true /f:text > "%TEMP_DIR%\\event_system.txt"
-wevtutil qe Application /c:50 /rd:true /f:text > "%TEMP_DIR%\\event_application.txt"
-
-:: Processos em execucao
-tasklist /v > "%TEMP_DIR%\\processes.txt"
-
-:: Uso de disco
-wmic logicaldisk get caption,freespace,size > "%TEMP_DIR%\\disk_space.txt"
-
-:: Drivers
-driverquery /v > "%TEMP_DIR%\\drivers.txt"
-
-:: Compactar logs
-powershell Compress-Archive -Path "%TEMP_DIR%\\*" -DestinationPath "%USERPROFILE%\\Desktop\\diagnostico_logs.zip"
-
-:: Enviar para webhook n8n (substitua pela URL real)
-curl -X POST -F "file=@%USERPROFILE%\\Desktop\\diagnostico_logs.zip" -F "re=${userRE}" -F "hostname=${userHostname}" ${N8N_WEBHOOK_URL}/upload
+echo Compactando...
+powershell -Command "Compress-Archive -Path '%TEMP_DIR%\\*' -DestinationPath '%USERPROFILE%\\Desktop\\diagnostico_${userRE}.zip' -Force" 2>nul
 
 echo.
 echo ========================================
-echo Coleta concluida!
-echo Arquivo salvo em: %USERPROFILE%\\Desktop\\diagnostico_logs.zip
-echo Logs enviados para analise automatica
+echo CONCLUIDO!
+echo Arquivo: Desktop\\diagnostico_${userRE}.zip
 echo ========================================
 pause
 
-:: Limpar pasta temporaria
-rmdir /s /q "%TEMP_DIR%"
+rmdir /s /q "%TEMP_DIR%" 2>nul
 `;
 
             const blob = new Blob([scriptContent], { type: 'text/plain' });
@@ -739,34 +404,12 @@ rmdir /s /q "%TEMP_DIR%"
         }
 
         function scrollToBottom() {
-            setTimeout(() => {
-                messagesContainer.scrollTo({
-                    top: messagesContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
+            setTimeout(() => messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' }), 100);
         }
 
         function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        function copyToClipboard(button) {
-            const messageContent = button.closest('.flex-1').querySelector('.message-content').innerText;
-            navigator.clipboard.writeText(messageContent).then(() => {
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                }, 2000);
-            });
         }
     </script>
 </body>
