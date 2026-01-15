@@ -140,56 +140,87 @@
     </div>
 
     <script>
+        // =========================
+        // CONFIG
+        // =========================
+        const N8N_WEBHOOK_URL = 'https://flows.imberabrasil.com/webhook/recebre-dados';
+
+        // =========================
+        // STATE
+        // =========================
         let userRE = '';
         let userHostname = '';
         let messageHistory = [];
-        const N8N_WEBHOOK_URL = 'https://flows.imberabrasil.com/webhook/recebre-dados';
 
+        // Para permitir baixar o último script gerado
+        let lastGeneratedFile = null; // { fileName, base64, mimeType }
+
+        // =========================
+        // ELEMENTS
+        // =========================
         const textarea = document.getElementById('messageInput');
         const messagesContainer = document.getElementById('messagesContainer');
         const scrollButton = document.getElementById('scrollToBottom');
 
+        // =========================
+        // TEXTAREA BEHAVIOR
+        // =========================
         if (textarea) {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-                document.getElementById('charCounter').textContent = `${this.value.length} caracteres`;
+            textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+            document.getElementById('charCounter').textContent = `${this.value.length} caracteres`;
             });
-            textarea.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    document.getElementById('messageForm').dispatchEvent(new Event('submit'));
-                }
+
+            textarea.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+            }
             });
         }
 
-        messagesContainer.addEventListener('scroll', function() {
+        // =========================
+        // SCROLL BUTTON
+        // =========================
+        if (messagesContainer && scrollButton) {
+            messagesContainer.addEventListener('scroll', function () {
             const isNearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 100;
             scrollButton.classList.toggle('show', !isNearBottom);
-        });
+            });
 
-        scrollButton.addEventListener('click', function() {
+            scrollButton.addEventListener('click', function () {
             messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
-        });
+            });
+        }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // =========================
+        // LOGIN
+        // =========================
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
+
             userRE = document.getElementById('re').value.trim();
             userHostname = document.getElementById('hostname').value.trim() || 'Não informado';
-            if (userRE) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('chatScreen').classList.remove('hidden');
-                document.getElementById('userInfo').textContent = `RE: ${userRE} • Máquina: ${userHostname}`;
-                resetChat();
-                setTimeout(() => textarea.focus(), 100);
-            }
+
+            if (!userRE) return;
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.remove('hidden');
+            document.getElementById('userInfo').textContent = `RE: ${userRE} • Máquina: ${userHostname}`;
+
+            resetChat();
+            setTimeout(() => textarea?.focus(), 100);
         });
 
         function logout() {
             if (messageHistory.length > 0 && !confirm('Tem certeza que deseja sair? O histórico será perdido.')) return;
+
             userRE = '';
             userHostname = '';
             messageHistory = [];
+            lastGeneratedFile = null;
+
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('chatScreen').classList.add('hidden');
             document.getElementById('re').value = '';
@@ -199,107 +230,73 @@
         function clearChat() {
             if (messageHistory.length > 0 && !confirm('Deseja iniciar um novo diagnóstico?')) return;
             messageHistory = [];
+            lastGeneratedFile = null;
             resetChat();
-            textarea.focus();
+            textarea?.focus();
         }
 
+        // Expor para os botões do HTML
+        window.logout = logout;
+        window.clearChat = clearChat;
+
+        // =========================
+        // CHAT UI
+        // =========================
         function resetChat() {
             document.getElementById('messagesContent').innerHTML = `
-                <div class="flex gap-3 fade-in">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <div class="message-assistant p-4">
-                            <div class="message-content text-gray-800">
-                                <p class="mb-3">👋 Olá! Sou o <strong>Assistente RepareTools</strong>, especializado em autodiagnóstico de máquinas Windows.</p>
-                                <p class="mb-3"><strong>Como funciona:</strong></p>
-                                <ol class="space-y-2">
-                                    <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
-                                    <li>2️⃣ Vou gerar um script .bat personalizado para coletar logs do sistema</li>
-                                    <li>3️⃣ Execute o script com <strong>duplo clique</strong> (não precisa ser administrador)</li>
-                                    <li>4️⃣ Analisarei os logs e fornecerei um guia passo a passo para solução</li>
-                                </ol>
-                                <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">💡 <strong>Dica:</strong> Seja específico ao descrever o problema</p>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando')">🐢 Máquina lenta</button>
-                            <button class="quick-action" onclick="sendQuickMessage('Erro de tela azul (BSOD)')">🔵 Tela azul</button>
-                            <button class="quick-action" onclick="sendQuickMessage('Aplicativos não abrem')">⚠️ Erros de aplicativo</button>
-                            <button class="quick-action" onclick="sendQuickMessage('Problemas de rede')">🌐 Rede</button>
-                        </div>
+            <div class="flex gap-3 fade-in">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                </div>
+                <div class="flex-1">
+                <div class="message-assistant p-4">
+                    <div class="message-content text-gray-800">
+                    <p class="mb-3">👋 Olá! Sou o <strong>Assistente RepareTools</strong>, especializado em autodiagnóstico de máquinas Windows.</p>
+                    <p class="mb-3"><strong>Como funciona:</strong></p>
+                    <ol class="space-y-2">
+                        <li>1️⃣ Descreva o problema que sua máquina está apresentando</li>
+                        <li>2️⃣ Se faltarem dados, farei algumas perguntas</li>
+                        <li>3️⃣ Quando estiver pronto, vou gerar um script .bat personalizado</li>
+                        <li>4️⃣ Você baixa e executa com <strong>duplo clique</strong> (sem admin)</li>
+                    </ol>
+                    <p class="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">💡 <strong>Dica:</strong> Seja específico ao descrever o problema</p>
                     </div>
                 </div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <button class="quick-action" onclick="sendQuickMessage('Minha máquina está lenta e travando')">🐢 Máquina lenta</button>
+                    <button class="quick-action" onclick="sendQuickMessage('Erro de tela azul (BSOD)')">🔵 Tela azul</button>
+                    <button class="quick-action" onclick="sendQuickMessage('Aplicativos não abrem ou fecham sozinhos')">⚠️ Erros de aplicativo</button>
+                    <button class="quick-action" onclick="sendQuickMessage('Problemas de rede (Wi-Fi/Internet instável)')">🌐 Rede</button>
+                </div>
+                </div>
+            </div>
             `;
+            scrollToBottom();
         }
 
         function sendQuickMessage(message) {
+            if (!textarea) return;
             textarea.value = message;
             document.getElementById('messageForm').dispatchEvent(new Event('submit'));
         }
-
-        document.getElementById('messageForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const message = textarea.value.trim();
-            if (!message) return;
-
-            addMessage(message, 'user');
-            messageHistory.push({role: 'user', content: message});
-            textarea.value = '';
-            textarea.style.height = 'auto';
-            document.getElementById('charCounter').textContent = '0 caracteres';
-
-            showTypingIndicator();
-
-            try {
-                // ENVIAR DADOS PARA O WEBHOOK N8N
-                const response = await fetch(N8N_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        re: userRE,
-                        hostname: userHostname,
-                        message: message,
-                        timestamp: new Date().toISOString(),
-                        history: messageHistory
-                    })
-                });
-
-                const data = await response.json();
-                removeTypingIndicator();
-                
-                // Processar resposta do n8n - CORRIGIDO para aceitar "output"
-                const botResponse = data.output || data.response || data.message || "Erro ao processar solicitação";
-                addMessage(botResponse, 'assistant', data.hasScript || false);
-                messageHistory.push({ role: 'assistant', content: botResponse });
-
-            } catch (error) {
-                removeTypingIndicator();
-                addMessage('Erro ao conectar com o servidor. Verifique sua conexão.', 'assistant');
-                console.error('Erro:', error);
-            }
-
-        });
+        window.sendQuickMessage = sendQuickMessage;
 
         function showTypingIndicator() {
             document.getElementById('messagesContent').innerHTML += `
-                <div id="typingIndicator" class="flex gap-3 fade-in">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
+            <div id="typingIndicator" class="flex gap-3 fade-in">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
                 </div>
+                <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                </div>
+            </div>
             `;
             scrollToBottom();
         }
@@ -311,29 +308,40 @@
 
         function addMessage(text, sender, hasScript = false) {
             const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            const content = sender === 'user' 
+
+            const content =
+            sender === 'user'
                 ? `<div class="flex gap-3 justify-end fade-in">
                     <div class="flex-1 flex flex-col items-end">
-                        <div class="message-user p-4"><p class="text-white whitespace-pre-wrap">${escapeHtml(text)}</p></div>
-                        <div class="message-time text-gray-500 px-2">${time}</div>
+                    <div class="message-user p-4"><p class="text-white whitespace-pre-wrap">${escapeHtml(text)}</p></div>
+                    <div class="message-time text-gray-500 px-2">${time}</div>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 text-white font-medium text-sm">${userRE.substring(0, 2).toUpperCase()}</div>
                 </div>`
                 : `<div class="flex gap-3 fade-in">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#04395E] to-[#0a5080] flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
                     </div>
                     <div class="flex-1">
-                        <div class="message-assistant p-4">
-                            <div class="message-content text-gray-800">${marked.parse(text)}</div>
-                            ${hasScript ? '<button class="mt-3 btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2" onclick="downloadScript()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Baixar Script (.bat)</button>' : ''}
-                        </div>
-                        <div class="flex items-center gap-3 mt-2 px-2">
-                            <span class="message-time text-gray-500">${time}</span>
-                            ${hasScript ? '<span class="script-badge">✅ Sem necessidade de admin</span>' : ''}
-                        </div>
+                    <div class="message-assistant p-4">
+                        <div class="message-content text-gray-800">${marked.parse(text)}</div>
+                        ${
+                        hasScript
+                            ? `<button class="mt-3 btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2" onclick="downloadLastScript()">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Baixar Script (.bat)
+                            </button>`
+                            : ''
+                        }
+                    </div>
+                    <div class="flex items-center gap-3 mt-2 px-2">
+                        <span class="message-time text-gray-500">${time}</span>
+                        ${hasScript ? '<span class="script-badge">✅ Sem necessidade de admin</span>' : ''}
+                    </div>
                     </div>
                 </div>`;
 
@@ -341,77 +349,121 @@
             scrollToBottom();
         }
 
-        function downloadScript() {
-            const scriptContent = `@echo off
-chcp 65001 >nul
-echo ========================================
-echo RepareTools - Diagnostico (SEM ADMIN)
-echo ========================================
-echo.
-
-set "TEMP_DIR=%USERPROFILE%\\AppData\\Local\\Temp\\reparetools_%RANDOM%"
-mkdir "%TEMP_DIR%" 2>nul
-
-echo RE: ${userRE} > "%TEMP_DIR%\\info.txt"
-echo Maquina: %COMPUTERNAME% >> "%TEMP_DIR%\\info.txt"
-
-echo [1/8] Coletando sistema...
-systeminfo > "%TEMP_DIR%\\systeminfo.txt" 2>&1
-
-echo [2/8] Processos...
-tasklist /v > "%TEMP_DIR%\\processes.txt" 2>&1
-
-echo [3/8] CPU e memoria...
-wmic cpu get name,numberofcores /format:list > "%TEMP_DIR%\\cpu.txt" 2>&1
-
-echo [4/8] Espaco em disco...
-wmic logicaldisk get caption,freespace,size /format:list > "%TEMP_DIR%\\disk.txt" 2>&1
-
-echo [5/8] Programas instalados...
-wmic product get name,version /format:list > "%TEMP_DIR%\\programs.txt" 2>&1
-
-echo [6/8] Configuracoes de rede...
-ipconfig /all > "%TEMP_DIR%\\network.txt" 2>&1
-
-echo [7/8] Conexoes ativas...
-netstat -ano > "%TEMP_DIR%\\connections.txt" 2>&1
-
-echo [8/8] Variaveis de ambiente...
-set > "%TEMP_DIR%\\env.txt" 2>&1
-
-echo.
-echo Compactando...
-powershell -Command "Compress-Archive -Path '%TEMP_DIR%\\*' -DestinationPath '%USERPROFILE%\\Desktop\\diagnostico_${userRE}.zip' -Force" 2>nul
-
-echo.
-echo ========================================
-echo CONCLUIDO!
-echo Arquivo: Desktop\\diagnostico_${userRE}.zip
-echo ========================================
-pause
-
-rmdir /s /q "%TEMP_DIR%" 2>nul
-`;
-
-            const blob = new Blob([scriptContent], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `diagnostico_${userRE}_${Date.now()}.bat`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-
         function scrollToBottom() {
-            setTimeout(() => messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' }), 100);
+            setTimeout(() => messagesContainer?.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' }), 80);
         }
 
         function escapeHtml(text) {
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            return String(text).replace(/[&<>"']/g, (m) => map[m]);
         }
-    </script>
+
+        // =========================
+        // DOWNLOAD HELPERS
+        // =========================
+        function downloadBase64File(fileName, base64, mimeType) {
+            const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+            const blob = new Blob([bytes], { type: mimeType || 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName || `diagnostico_${Date.now()}.bat`;
+            document.body.appendChild(a);
+            a.click();
+
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function downloadLastScript() {
+            if (!lastGeneratedFile) {
+            addMessage('⚠️ Nenhum script disponível para download ainda.', 'assistant', false);
+            return;
+            }
+            downloadBase64File(lastGeneratedFile.fileName, lastGeneratedFile.base64, lastGeneratedFile.mimeType);
+        }
+        window.downloadLastScript = downloadLastScript;
+
+        // =========================
+        // SEND MESSAGE
+        // =========================
+        document.getElementById('messageForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const message = textarea?.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            messageHistory.push({ role: 'user', content: message });
+
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            document.getElementById('charCounter').textContent = '0 caracteres';
+
+            showTypingIndicator();
+
+            try {
+            const response = await fetch(N8N_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                re: userRE,
+                hostname: userHostname,
+                message: message,
+                timestamp: new Date().toISOString(),
+                history: messageHistory,
+                }),
+            });
+
+            // Garante que é JSON (evita "Unexpected end of JSON input")
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                const text = await response.text();
+                throw new Error(`Resposta não é JSON. Content-Type=${contentType}. Body=${text.slice(0, 200)}`);
+            }
+
+            const data = await response.json();
+            removeTypingIndicator();
+
+            // ==== Novo protocolo do n8n (mode ask / generate) ====
+            if (data?.mode === 'ask') {
+                const questions = Array.isArray(data.questions) && data.questions.length
+                ? `\n\n**Perguntas:**\n${data.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`
+                : '';
+
+                const botResponse = `${data.reply || 'Preciso de mais informações para ajudar.'}${questions}`;
+                addMessage(botResponse, 'assistant', false);
+                messageHistory.push({ role: 'assistant', content: botResponse });
+                return;
+            }
+
+            if (data?.mode === 'generate' && data?.file?.base64) {
+                // guarda o arquivo e baixa automaticamente
+                lastGeneratedFile = {
+                fileName: data.file.fileName,
+                base64: data.file.base64,
+                mimeType: data.file.mimeType,
+                };
+
+                const botResponse = data.reply || '✅ Script gerado. Iniciando download...';
+                addMessage(botResponse, 'assistant', true);
+                messageHistory.push({ role: 'assistant', content: botResponse });
+
+                downloadLastScript();
+                return;
+            }
+
+            // fallback (se o n8n retornar outro formato)
+            const botResponse = data.output || data.response || data.message || 'Resposta desconhecida do servidor.';
+            addMessage(botResponse, 'assistant', false);
+            messageHistory.push({ role: 'assistant', content: botResponse });
+            } catch (error) {
+            removeTypingIndicator();
+            addMessage('Erro ao conectar com o servidor. Verifique sua conexão ou contate o suporte.', 'assistant', false);
+            console.error('Erro:', error);
+            }
+        });
+        </script>
+
 </body>
 </html>
